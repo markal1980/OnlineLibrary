@@ -1,0 +1,94 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2><span>Reserved Books</span> </h2>
+  <table class="table">
+     <tr>
+       <strong>
+       <td><strong>Book name</strong></td>
+       <td><strong>Reservation</strong></td>
+       <td><strong>Email sent</strong></td>
+       <td><strong>Cancel</strong></td>
+       <td><strong></strong></td>
+       <td><strong></strong></td>
+       </strong>
+     </tr>
+    {% for reservation in reservations %}
+    <tr>
+      <td><a href="{% url 'book' reservation.id_book.id %}">{{reservation.id_book.name}}</a> </td>
+
+      <td>{{ reservation.reservation_date }}</td>
+      <td>
+        {% if reservation.email_sent %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </td>
+      <td>
+        {% if reservation.email_sent %}
+        {% else %}
+          {% if reservation.canceled %}
+            Canceled
+          {% else %}
+          <button data-product={{reservation.id_book.id}} data-user={{reservation.id_user.user.id}} data-action="cancelreservation" class="update-booked">
+            Cancel
+          </button>
+          {% endif %}
+        {% endif %}
+
+      </td>
+      <td>
+
+      </td>
+      <td>
+
+      </td>
+
+    </tr>
+
+    {% endfor %}
+  </table>
+
+<script>
+  var confirmBtns = document.getElementsByClassName('update-booked');
+    for (var i = 0; i < confirmBtns.length; i++) {
+        confirmBtns[i].addEventListener('click', confirmAction);
+  }
+ function confirmAction(event) {
+        event.preventDefault();
+        var message = "Opravdu si to přejete?";
+        if (confirm(message)) {
+            var book_id = this.dataset.product;
+            var action = this.dataset.action;
+            var user1 = this.dataset.user;
+            console.log('Action:', action, 'BookID:', book_id, 'user:', user1);
+            change_reservation(book_id, action, user1)
+        }
+    }
+
+function change_reservation(book_id, action, user1){
+    console.log('Sending data...')
+
+    var url = '/change_reservation/'
+
+    fetch(url, {
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body:JSON.stringify({'book_id': book_id, 'action': action, 'person': user1})
+    })
+        .then((response) =>{
+            return response.json()
+        })
+        .then((data) =>{
+            console.log('data: ', data)
+            location.reload()
+        })
+}
+
+</script>
+
+{% endblock %}

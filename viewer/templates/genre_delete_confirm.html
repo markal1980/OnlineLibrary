@@ -1,0 +1,10 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    Žánr: <b> {{ object }} </b>
+    <p>Are you sure you want to delete the genre ?</p>
+    <input type="submit" value="Submit" class="btn btn-danger">
+  </form>
+{% endblock %}

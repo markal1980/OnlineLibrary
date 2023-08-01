@@ -1,0 +1,22 @@
+{% extends 'index.html' %}
+{% block content %}
+
+  {% if object.name %}
+    <h2>Editace autora: {{ object.name }}</h2>
+  {% else %}
+    <h2>Nový autor:</h2>
+  {% endif %}
+
+  <div>
+    <form method="post" action="">
+      {% csrf_token %}
+      <table>
+        {{ form.as_table }}
+      </table>
+      <button type="submit">Save</button>
+    </form>
+  </div>
+
+{% endblock %}
+
+

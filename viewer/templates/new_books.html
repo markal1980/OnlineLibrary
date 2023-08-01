@@ -1,0 +1,8 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<h2><span>Novinky:</span> </h2>
+  {% for book in books %}
+    {{ book }}
+  {% endfor %}
+{% endblock %}

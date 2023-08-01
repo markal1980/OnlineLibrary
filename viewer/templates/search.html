@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <div class="search-result">
+    Results for "{{ pattern }}":
+  </div>
+
+  <h3>Books by czech name:</h3>
+    <ul>
+    {% for book in books_name %}
+      <li><a href="{% url 'book' book.id %}"> {{ book.name }} </a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+  <h3>Books by original name:</h3>
+    <ul>
+    {% for book in books_original_name %}
+      <li><a href="{% url 'book' book.id %}">{{ book.original_name }}</a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+  <h3>Books by description:</h3>
+    <ul>
+    {% for book in books_description %}
+      <li><a href="{% url 'book' book.id %}">{{ book.name }}</a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+  <h3>Authors:</h3>
+    <ul>
+    {% for author in authors %}
+      <li><a href="{% url 'author' author.id %}">{{ author }}</a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+  <h3>Genres:</h3>
+    <ul>
+    {% for genre in genres %}
+      <li><a href="{% url 'genre' genre.id%}">{{ genre }}</a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+  <h3>Users:</h3>
+    <ul>
+    {% for user in users %}
+      <li><a href="{% url 'user_page' user.id %}">{{ user }}</a></li>
+    {% empty %}
+      <i>Nothing found</i>
+    {% endfor %}
+    </ul>
+{% endblock %}

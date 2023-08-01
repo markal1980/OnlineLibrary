@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+
+{% block title %} SignUp {% endblock %}
+
+{% block content %}
+  <h2>Sign up</h2>
+  <div class='signup-form'>
+    <form method='post'>
+      {% csrf_token %}
+      {% for field in form %}
+      <table class="table">
+        <tr><td>{{ field.label }}</td><td>{{ field }}</td></tr>
+        {% if field.errors %}
+          {% for error in field.errors %}
+            <tr><td></td><td style="color: red">{{ error }}</td></tr>
+          {% endfor %}
+        {% endif %}
+
+      </table>
+      {% endfor %}
+      <button type='submit' id='btn-submit'>Sign up</button>
+    </form>
+  </div>
+{% endblock %}

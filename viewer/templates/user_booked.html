@@ -1,0 +1,106 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2><span>Rented Books</span> </h2>
+  <table class="table">
+     <tr>
+       <strong>
+       <td><strong>Book name</strong></td>
+       <td><strong>Reservation</strong></td>
+       <td><strong>Rent date</strong></td>
+       <td><strong>Rent to</strong></td>
+       <td><strong>Return date</strong></td>
+       <td><strong></strong></td>
+       </strong>
+     </tr>
+    {% for order in orders %}
+    {% for order_item in order.orderitem_set.all %}
+    {% for rented_item in order_item.book.rented_set.all %}
+       {% if rented_item.id_user == user and rented_item.id_order == order%}
+    <tr>
+      <td><a href="{% url 'book' order_item.book.id %}">{{order_item.book.name}}</a> </td>
+
+      <td>{{ rented_item.reservation_date }}</td>
+      <td>
+        {% if rented_item.rent_date %}
+        {{rented_item.rent_date}}
+        {% endif %}
+      </td>
+      <td>
+        {% if rented_item.return_to_date %}
+          {{ rented_item.return_to_date }}
+        {% endif %}
+      </td>
+      <td>
+        {% if rented_item.return_date %}
+          {{ rented_item.return_date }}
+        {% endif %}
+      </td>
+      <td>
+        {% if rented_item.rent_date or rented_item.returned_date %}
+        {% else %}
+          {% if rented_item.canceled %}
+            Canceled
+          {% else %}
+          <button data-product={{rented_item.id_book.id}} data-user={{rented_item.id_user.user.id}} data-order={{rented_item.id_order.id}} data-action="cancel" class="update-booked">
+            Cancel
+          </button>
+          {% endif %}
+        {% endif %}
+        {% if rented_item.rent_date and not rented_item.return_date and not rented_item.extend %}
+          <button data-product={{rented_item.id_book.id}} data-user={{rented_item.id_user.user.id}} data-order={{rented_item.id_order.id}} data-action="extend" class="update-booked">
+            Extend
+          </button>
+        {% endif %}
+      </td>
+
+    </tr>
+    {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% endfor %}
+  </table>
+
+<script>
+  var confirmBtns = document.getElementsByClassName('update-booked');
+    for (var i = 0; i < confirmBtns.length; i++) {
+        confirmBtns[i].addEventListener('click', confirmAction);
+  }
+ function confirmAction(event) {
+        event.preventDefault();
+        var message = "Opravdu si to přejete?";
+        if (confirm(message)) {
+            var book_id = this.dataset.product;
+            var action = this.dataset.action;
+            var order_id = this.dataset.order;
+            var user1 = this.dataset.user;
+            console.log('Action:', action, 'BookID:', book_id, 'OrderID:', order_id, 'user:', user1);
+            updateBooked(book_id, action, order_id, user1)
+        }
+    }
+
+function updateBooked(book_id, action, order_id, user1){
+    console.log('Sending data...')
+
+    var url = '/change_booked/'
+
+    fetch(url, {
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body:JSON.stringify({'book_id': book_id, 'action': action, 'order_id': order_id, 'person': user1})
+    })
+        .then((response) =>{
+            return response.json()
+        })
+        .then((data) =>{
+            console.log('data: ', data)
+            location.reload()
+        })
+}
+
+</script>
+
+{% endblock %}

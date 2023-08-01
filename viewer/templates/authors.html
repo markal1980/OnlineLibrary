@@ -1,0 +1,49 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2><span>Autoři:</span> </h2>
+    {% for author in authors %}
+      <table class="table">
+        <tr>
+          <td class="td_bold"><a href="{% url 'author' author.id %}"> {{ author.name }} </a></td>
+        </tr>
+      </table>
+    {% endfor %}
+
+{% if authors.paginator.num_pages == 1 %}
+
+{% else %}
+<hr>
+<table class="table">
+  <tr><td>
+    {% if authors.has_previous %}
+      <a href="?page={{ authors.previous_page_number }}">Previous</a>
+    {% endif %}
+    </td>
+    <td class="td_center" style="text-align: center" colspan="3">
+    {% if authors.number > 10 %}
+      <a href="?page=1">1</a>
+      <span class="ellipsis">...</span>
+    {% endif %}
+    {% for i in authors.paginator.page_range %}
+      {% if authors.number == i %}
+        <span class="current-page">{{ i }}</span>
+      {% elif i > authors.number|add:'-5' and i < authors.number|add:'5' %}
+        <a href="?page={{ i }}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if authors.number < authors.paginator.num_pages|add:'-10' %}
+      <span class="ellipsis">...</span>
+      <a href="?page={{ authors.paginator.num_pages }}">{{ authors.paginator.num_pages }}</a>
+    {% endif %}
+    </td>
+    <td class="td_right">
+    {% if authors.has_next %}
+      <a href="?page={{ authors.next_page_number }}">Next</a>
+    {% endif %}
+    </td>
+</table>
+{% endif %}
+{% endblock %}
+
+

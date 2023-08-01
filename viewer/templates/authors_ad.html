@@ -1,0 +1,22 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h2><span>Autoři:</span></h2>
+
+  <table>
+    <tr>
+      <td><a href="{% url 'new_author' %}">Přidat nového autora</a></td>
+    </tr>
+  </table><hr>
+
+    {% for author in authors %}
+      <table class="table">
+        <tr>
+          <td class="td_bold"><a href="{% url 'author' author.id %}"> {{ author.name }} </td>
+          <td class="td_right">
+            <a href="{% url 'author_update' author.id %}">edit</a>
+            <a href="{% url 'author_delete' author.id %}">delete</a></td>
+        </tr>
+      </table>
+    {% endfor %}
+
+{% endblock %}

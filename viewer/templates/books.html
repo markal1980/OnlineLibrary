@@ -1,0 +1,53 @@
+{% extends 'index.html' %}
+{% block content %}
+
+<h2><span>Knihy:</span> </h2>
+{% for book in books %}
+  <table class="table">
+    <tr><td rowspan="6"><a href="{% url 'book' book.id %}"> <img src="{{ book.image }}" width=90px></a></td></tr>
+    <tr><td class="td_bold">Název:</td><td> {{ book.name }}</td></tr>
+    <tr><td class="td_bold">Originální název:</td><td> {{ book.original_name }}</td></tr>
+    <tr><td class="td_bold">Autor:</td><td><a href="{% url 'author' book.get_author_id %}"> {{ book.get_author }}</a></td></tr>
+    <tr><td class="td_bold">Rok:</td><td> {{ book.year }}</td></tr>
+    <tr><td class="td_right" colspan="2">
+    {% if user.is_staff %}
+      <a href="{% url 'book_update' book.id %}">edit</a>
+      <a href="{% url 'book_delete' book.id %}">delete</a></td></tr>
+    {% endif %}
+  </table><hr>
+{% endfor %}
+
+{% if books.paginator.num_pages == 1 %}
+
+{% else %}
+<table class="table">
+  <tr><td>
+    {% if books.has_previous %}
+      <a href="?page={{ books.previous_page_number }}">Previous</a>
+    {% endif %}
+    </td>
+    <td class="td_center" style="text-align: center" colspan="3">
+    {% if books.number > 10 %}
+      <a href="?page=1">1</a>
+      <span class="ellipsis">...</span>
+    {% endif %}
+    {% for i in books.paginator.page_range %}
+      {% if books.number == i %}
+        <span class="current-page">{{ i }}</span>
+      {% elif i > books.number|add:'-5' and i < books.number|add:'5' %}
+        <a href="?page={{ i }}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if books.number < books.paginator.num_pages|add:'-10' %}
+      <span class="ellipsis">...</span>
+      <a href="?page={{ books.paginator.num_pages }}">{{ books.paginator.num_pages }}</a>
+    {% endif %}
+    </td>
+    <td class="td_right">
+    {% if books.has_next %}
+      <a href="?page={{ books.next_page_number }}">Next</a>
+    {% endif %}
+    </td>
+</table>
+{% endif %}
+ {% endblock %}

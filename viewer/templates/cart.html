@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+{% block content %}
+   <h2><span>Basket summary:</span> </h2>
+   {% for book in items %}
+   <table class="table">
+      <tr><td rowspan="4"><a href="{% url 'book' book.book.id %}"> <img src="{{ book.book.image }}" width=50px></a></td></tr>
+      <tr><td class="td_bold">Název:</td><td> {{ book.book.name }}</td></tr>
+      <tr><td class="td_bold">Autor:</td><td><a href="{% url 'author' book.book.get_author_id %}"> {{ book.book.get_author }}</a> </td></tr>
+      <tr><td class="td_bold"></td><td style="text-align: end"><button data-product={{book.book.id}} data-action="remove" class="update-cart" style="color: red; border-radius: 15px">Odebrat</button></td></tr>
+      <hr>
+   </table>
+
+   {% endfor %}
+   <hr>
+   <table class="table">
+      <tr>
+         <td class="td_bold">
+            <a href="{% url 'home' %}"> <button>Back to library</button></a>
+         </td>
+         <td style="text-align: end">
+            {% if order.total_items > 0%}
+            <button id="finish-button">
+               Finish order
+            </button>
+            {% endif %}
+         </td>
+      </tr>
+
+   </table>
+         <hr>
+<script>
+    var form = document.getElementById('finish-button').addEventListener('click', function(e){
+        submitOrder()
+    })
+    function submitOrder(){
+        console.log('Finish button clicked')
+
+        var url = '/order_done/'
+        fetch(url, {redirect: "manual"})
+        .then((response) => response.json())
+        {
+            window.location.href = "/index/"
+        }
+
+
+    }
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>LibraryPro</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <!--<link href="../static/style.css" rel="stylesheet" type="text/css" />-->
+  <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="{% static 'js/cufon-yui.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/arial.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/cuf_run.js' %}"></script>
+  <script type="text/javascript">
+    var user = '{{request.user}}';
+    function getToken(name) { let cookieValue = null;
+
+               if (document.cookie && document.cookie !== '') { const cookies = document.cookie.split(';');
+                   for (let i = 0; i < cookies.length; i++) {
+                       const cookie = cookies[i].trim();
+                       // Does this cookie string begin with the name we want?
+                       if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                           break;
+                       }
+                   }
+               }
+               return cookieValue;
+           }
+           const csrftoken = getToken('csrftoken');
+  </script>
+</head>
+<body>
+  <!-- START PAGE SOURCE -->
+  <div class="main">
+    <div class="header">
+      <div class="header_resize">
+        <div class="logo">
+          <h1><a href="{% url 'home' %}">online<span>Library</span></a> <small>our books 4 U</small></h1>
+        </div>
+  <!-- MENU -->
+        {% include 'nav_menu.html' %}
+
+  <!-- SEARCH -->
+        <div class="searchform">
+          <form id="formsearch" name="formsearch" method="post" action="/search/">
+            {% csrf_token %}
+            <span>
+            <input name="editbox_search" class="editbox_search" id="editbox_search" maxlength="80" placeholder="Search: " type="text" />
+            </span>
+            <input name="button_search" src="https://www.databazeknih.cz/img/content/magnifier.svg" class="button_search" type="image" />
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="content_resize">
+        <div class="content_resize2">
+          <div class="mainbar">
+            <div class="article">
+
+  <!-- CONTENT -->
+              <div class="clr"></div>
+                {% block content %}
+                  <h2><span>Novinky:</span></h2>
+                    {% for book in books %}
+                    {% if forloop.counter <= 12 %}
+                      <a href="{% url 'book' book.id %}">
+                      <img id="new-book" src="{{ book.image }}" width = 13% height= 140 px>
+                      </a>
+                    {% else %}
+
+                    {% endif %}
+                    {% endfor %}
+                {% endblock %}
+              </div>
+            </div>
+
+  <!-- SIDEBAR -->
+          <div class="sidebar">
+            <div class="gadget">
+              <script>
+                window.onload = function() {
+                  var options = { day: 'numeric', month: 'long', year: 'numeric' };
+                  var currentDate = new Date().toLocaleDateString('cs-CZ', options);
+                  document.getElementById('datum').innerHTML = currentDate;};
+              </script>
+              <span class="date">Dnes je:</span></br>
+              <span class="date" id="datum"></span>
+              <hr width="115px" align="left">
+              <h2 class="star">User Menu</h2>
+              <ul class="sb_menu">
+                {% if request.user.is_authenticated %}
+                  You are log in as: <strong> {{ request.user.username }} </strong>
+                  <li><a href="{% url 'logout' %}" id="logout-btn">Logout</a></li>
+                  <li><a id="orders" href="{% url 'user_booked' user.id %}">Orders</a></li>
+                  <li><a href="{% url 'reservations' user.id %}">Reservations</a></li>
+                {% else %}
+                  You should <a href="{% url 'login' %}" id="login-id">Log In</a> or <a href="{% url 'signup' %}" id="sign-up-btn">Sign Up</a>
+                {% endif %}
+                <hr>
+                {% if request.user.is_superuser %}
+                  <li><a href="/admin/" target="_blank">Admin page</a></li>
+                {% endif %}
+                {% if request.user.is_staff %}
+                  <li><a href="{% url 'new_book' %}">New book</a></li>
+                  <li><a href="{% url 'authors_ad' %}">Authors (new / edit / delete)</a></li>
+                  <li><a href="{% url 'genres' %}">Genres (new / edit / delete)</a></li>
+                  <li><a href="{% url 'languages' %}">Languages (new / edit / delete)</a></li>
+                  <li><a href="{% url 'booked' %}">Booked and rented books</a></li>
+                  <li><a href="{% url 'users' %}" id="users-page">Users</a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+          <div class="clr"></div>
+        </div>
+      </div>
+    </div>
+
+  <!-- CONTENT 3-4 -->
+    <div class="fbg">
+      <div class="fbg_resize">
+        <div class="col c1">
+          <h3>Statistic</h3>
+          <table>
+            <tr><td>Total books:</td><td> {{ request.book_sum }}</td></tr>
+            <tr><td>Total authors:</td><td> {{ request.author_sum }}</td></tr>
+            <tr><td width="100em">Reserved books: </td><td> {{ request.reserved_sum }}</td></tr>
+            <tr><td>Rented books:</td><td> {{ request.rented_sum }}</td></tr>
+            <tr><td>Total users:</td><td> {{ request.person_sum }}</td></tr>
+          </table>
+        </div>
+
+        <div class="col c2">
+          <h3>The most Rented</h3>
+          <table>
+            {% for book in request.most_rented_books %}
+              <tr>
+                <td width="100em"><a href="{% url 'book' book.id %}"> {{ book.name }} </a></td>
+                <td> {{ book.num_rented }} × </td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        <div class="col c3">
+          <h3><span>Contact</span></h3>
+          <table>
+            <tr><td>Knihovna s.r.o.</td></tr>
+            <tr><td>WEB: <a href="{% url 'home' %}">www.library.cz</a></td></tr>
+            <tr><td>E-mail: <a href="">online@library.cz</a></td></tr>
+            <tr><td>Phone: +420 286 415 211, +420 774 218 247</td></tr>
+            <tr><td>Address: Na Východě 11/326, 158 00, Praha 13</td></tr>
+            <tr><td></td></tr>
+          </table>
+        </div>
+        <div class="clr"></div>
+      </div>
+
+    </div>
+    <div class="footer">
+      <div class="footer_resize">
+        <p class="lr">Copyright &copy; 2023 <a href="">SDA Python team n. 3</a> - All Rights Reserved</p>
+        <p class="lf">Design by <a href="">Jane & Karl & Richi & Marty</a></p>
+        <div class="clr"></div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
+</body>
+</html>
+

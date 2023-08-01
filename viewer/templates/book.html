@@ -1,0 +1,175 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h2><span>{{ book.name }}</span> </h2>
+  <table class="table">
+    <tr><td rowspan="10"><img src=" {{ book.image }} " width=200px></a></td></tr>
+    <tr><td class="td_bold">Originální název:</td><td> {{ book.original_name }} </td></tr>
+    <tr><td class="td_bold">Autor:</td><td><a href="{% url 'author' book.get_author_id %}"> {{ book.get_author }} </a></td></tr>
+    <tr><td class="td_bold">Žánr:</td><td> {{ book.get_genre }} </td></tr>
+    <tr><td class="td_bold">Rok:</td><td> {{ book.year }} </td></tr>
+    <tr><td class="td_bold">Jazyk:</td><td> {{ book.get_language }} </td></tr>
+    <tr><td class="td_bold">Stránek:</td><td> {{ book.page }} </td></tr>
+    <tr><td class="td_bold">ISBN:</td><td> {{ book.isbn }} </td></tr>
+    <tr><td class="td_bold">Dostupnost:</td><td> {{ book.amount }}</td> </tr>
+    <tr>
+      <td>
+
+        {% if user.is_authenticated %}
+          {% if user.person.pay_to is None or user.person.pay_to < date.today %}
+            You have to pay membership
+          {% else %}
+            {% if book.amount > 0 %}
+              <button id="borrow-book" data-product={{book.id}} data-user={{request.user.id}} data-action="add" class="update-cart">
+                Borrow
+              </button>
+            {% else %}
+              {% if reserved %}
+                You have already reserved this book
+              {% else %}
+                <button id="reserve-book" data-product={{book.id}} data-action="reserve" class="update-cart">
+                  Reserve
+                </button>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        {% else %}
+          You have to be <a href="{% url 'login' %}"><button >Login</button></a>
+        {% endif %}
+      </td>
+      <td class="td_right" colspan="2">
+        {% if user.is_staff %}
+          <a href="{% url 'book_update' book.id %}">edit</a>
+          <a href="{% url 'book_delete' book.id %}">delete</a></td>
+        {% endif %}
+    </tr>
+
+  </table>
+
+<hr>
+<table class="table">
+    <tr>
+      <td class="td_bold" style="width: 20px; vertical-align: top;">Popis:</td>
+      <td>{{ book.description }}</td>
+    </tr>
+  </table>
+{% if request.user.is_authenticated %}
+    <div class="book-user-rating">
+      Rate:
+      {% if avg_rating == 0 %}
+        <a href="{% url 'rate_book' book.id 0 %}">👎</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 0 %}">🖓</a>
+      {% endif %}
+      {% if avg_rating > 0 %}
+        <a href="{% url 'rate_book' book.id 20 %}">⭐</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 20 %}">☆</a>
+      {% endif %}
+      {% if avg_rating > 20 %}
+        <a href="{% url 'rate_book' book.id 40 %}">⭐</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 40 %}">☆</a>
+      {% endif %}
+      {% if avg_rating > 40 %}
+        <a href="{% url 'rate_book' book.id 60 %}">⭐</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 60 %}">☆</a>
+      {% endif %}
+      {% if avg_rating > 60 %}
+        <a href="{% url 'rate_book' book.id 80 %}">⭐</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 80 %}">☆</a>
+      {% endif %}
+      {% if avg_rating > 80 %}
+        <a href="{% url 'rate_book' book.id 100 %}">⭐</a>
+      {% else %}
+        <a href="{% url 'rate_book' book.id 100 %}">☆</a>
+      {% endif %}
+      {% if rating %}
+        your rating is: {{ rating }}
+        <a href="{% url 'delete_rating' book.id %}">delete your rate</a>
+      {% else %}
+        you did not rate this book yet.
+      {% endif %}
+      <br>
+    </div>
+  {% else %}
+    <div class="book-user-rating">
+      Rating:
+      {% if avg_rating == 0 %}
+        👎
+      {% else %}
+
+      {% endif %}
+      {% if avg_rating > 0 %}
+        ⭐
+      {% else %}
+        ☆
+      {% endif %}
+      {% if avg_rating > 20 %}
+        ⭐
+      {% else %}
+        ☆
+      {% endif %}
+      {% if avg_rating > 40 %}
+        ⭐
+      {% else %}
+        ☆
+      {% endif %}
+      {% if avg_rating > 60 %}
+        ⭐
+      {% else %}
+        ☆
+      {% endif %}
+      {% if avg_rating > 80 %}
+        ⭐
+      {% else %}
+        ☆
+      {% endif %}
+     <br>
+    </div>
+
+
+  {% endif %}
+  <div class="book-avg-rating">
+    {% if avg_rating != None %}
+      Average rating is: {{ avg_rating|floatformat:"1" }}
+    {% else %}
+      Still no rating.
+    {% endif %}
+  </div>
+  <div class="book-comments">
+    {% if request.user.is_authenticated %}
+    <form method="post" action="{% url 'book' book.id %}">
+      {% csrf_token %}
+      <label for="comment">Comment:</label>
+      <input type="text" id="comment" name="comment">
+    </form>
+    {% endif %}
+    {% for comment in comments %}
+      <div class="book-comment">
+        <div class="book-comment-text">
+          {{ comment.comment }}
+        </div>
+        <div class="book-comment-user">
+          {{ comment.user }}
+        </div>
+        <div class="book-comment-created">
+          created: {{ comment.created}}
+        </div>
+        <div class="book-comment-updated">
+          updated: {{ comment.updated }}
+        </div>
+        {% if request.user == comment.user or request.user.is_staff %}
+          <div class="book-comment-delete">
+            <a href="{% url 'delete_comment' book.id comment.id_user.id %}">delete</a>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      No comments.
+    {% endfor %}
+  </div>
+
+{% endblock %}

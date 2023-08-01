@@ -1,0 +1,63 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h2><span>Žánry:</span></h2>
+{% if user.is_authenticated%}
+  <table>
+    <tr>
+      <td><a href="{% url 'new_genre' %}">Přidat nový žánr</a></td>
+    </tr>
+  </table>
+{% endif %}
+
+
+<hr>
+
+  {% for genre in genres %}
+    <table class="table">
+      <tr>
+        <td class="td_bold"> <a href="{% url 'genre' genre.id%}">{{ genre.name }} </a> </td>
+        {% if user.is_authenticated%}
+        <td class="td_right">
+          <a href="{% url 'genre_update' genre.id %}">edit</a>
+          <a href="{% url 'genre_delete' genre.id %}">delete</a>
+        </td>
+        {% endif %}
+      </tr>
+    </table>
+    {% endfor %}
+
+{% if genres.paginator.num_pages == 1 %}
+
+{% else %}
+<hr>
+<table class="table">
+  <tr><td>
+    {% if genres.has_previous %}
+      <a href="?page={{ genres.previous_page_number }}">Previous</a>
+    {% endif %}
+    </td>
+    <td class="td_center" style="text-align: center" colspan="3">
+    {% if genres.number > 10 %}
+      <a href="?page=1">1</a>
+      <span class="ellipsis">...</span>
+    {% endif %}
+    {% for i in genres.paginator.page_range %}
+      {% if genres.number == i %}
+        <span class="current-page">{{ i }}</span>
+      {% elif i > genres.number|add:'-5' and i < genres.number|add:'5' %}
+        <a href="?page={{ i }}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if genres.number < genres.paginator.num_pages|add:'-10' %}
+      <span class="ellipsis">...</span>
+      <a href="?page={{ genres.paginator.num_pages }}">{{ genres.paginator.num_pages }}</a>
+    {% endif %}
+    </td>
+    <td class="td_right">
+    {% if genres.has_next %}
+      <a href="?page={{ genres.next_page_number }}">Next</a>
+    {% endif %}
+    </td>
+</table>
+{% endif %}
+{% endblock %}

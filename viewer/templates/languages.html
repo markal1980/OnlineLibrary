@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h2><span>Jazyk:</span></h2>
+
+  <table>
+    <tr>
+      <td><a href="{% url 'new_language' %}">Přidat nový jazyk</a></td>
+    </tr>
+  </table><hr>
+
+  {% for language in languages %}
+    <table class="table">
+      <tr>
+        <td class="td_bold"> {{ language }} </td>
+        <td class="td_right">
+          <a href="{% url 'language_update' language.id %}">edit</a>
+          <a href="{% url 'language_delete' language.id %}">delete</a></td>
+      </tr>
+    </table>
+    {% endfor %}
+{% endblock %}
